@@ -7,10 +7,6 @@ import (
 	"time"
 )
 
-const (
-	defaultDirPerm = os.FileMode(0750)
-)
-
 func WithLocationPrefix(t testing.TB, location string) {
 	orig := locationPrefix
 	locationPrefix = location

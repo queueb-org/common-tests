@@ -8,10 +8,6 @@ import (
 	"testing"
 )
 
-const (
-	defaultFilePerm = os.FileMode(0640)
-)
-
 var update = flag.Bool("update", false, "update .golden files")
 
 var (

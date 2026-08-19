@@ -2,11 +2,13 @@ package tests
 
 import (
 	"os"
+	"path/filepath"
 	"testing"
 )
 
 const (
-	defaultFileMode = os.FileMode(0640)
+	defaultFilePerm = os.FileMode(0o640)
+	defaultDirPerm  = os.FileMode(0o750)
 )
 
 // WithReadFile reads a file and returns its content on success.
@@ -26,10 +28,25 @@ func WithReadFileString(t testing.TB, filename string) (contents string) {
 }
 
 // WithWriteFile writes contents to filename.
+// Creates sub-directory within filename:
+//
+//	WithWriteFile(t, "filename.txt", []byte("test")) // ok
+//	WithWriteFile(t, "sub-dir/filename.txt", []byte("test")) // ok
 func WithWriteFile(t testing.TB, filename string, contents []byte) {
-	if err := os.WriteFile(filename, contents, defaultFileMode); err != nil {
+	dir := filepath.Dir(filename)
+	if err := os.MkdirAll(dir, defaultDirPerm); err != nil {
+		t.Fatalf("create test directory: %v", err)
+	}
+	if err := os.WriteFile(filename, contents, defaultFilePerm); err != nil {
 		t.Fatalf("WithWriteFile(): %v", err)
 	}
+}
+
+// WithWriteFileString writes contents for a file (provided by a filename).
+// Creates sub-directories if they don't exist.
+// Invokes [WithWriteFile] with converted contents into []byte.
+func WithWriteFileString(t testing.TB, filename string, contents string) {
+	WithWriteFile(t, filename, []byte(contents))
 }
 
 // WithAppendFile appends new contents to a file.
@@ -40,7 +57,7 @@ func WithAppendFile(t testing.TB, filename string, contents []byte) {
 		fd  *os.File
 	)
 
-	if fd, err = os.OpenFile(filename, mode, defaultFileMode); err == nil {
+	if fd, err = os.OpenFile(filename, mode, defaultFilePerm); err == nil {
 		if _, err = fd.Seek(0, 2); err == nil {
 			_, err = fd.Write(contents)
 		}

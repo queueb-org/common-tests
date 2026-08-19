@@ -58,6 +58,15 @@ func TestWithWriteFile(t *testing.T) {
 		}
 	})
 
+	t.Run("ok/with-sub-dir", func(in *testing.T) {
+		filename := path.Join(dir, "sub-dir/a-test-file")
+		test, sub := F(in).WithTestFatalF()
+		WithWriteFile(test, filename, []byte("this is a test"))
+		if sub.Failed() {
+			in.Errorf("WithWriteFile() should not fail")
+		}
+	})
+
 	t.Run("cant-write", func(in *testing.T) {
 		filename := path.Join(dir, string([]byte{0x0, 0x1}))
 		test, sub := F(in).WithTestFatalF()
@@ -65,6 +74,29 @@ func TestWithWriteFile(t *testing.T) {
 
 		if !sub.Failed() {
 			in.Errorf("WithWriteFile() should fail")
+		}
+	})
+
+	t.Run("cant-create-dir", func(in *testing.T) {
+		filename := path.Join(dir, string([]byte{'/', 0x0, 0x1, '/', 'f', 'i', 'l', 'e'}))
+		test, sub := F(in).WithTestFatalF()
+		WithWriteFile(test, filename, []byte("this is a test"))
+
+		if !sub.Failed() {
+			in.Errorf("WithWriteFile() should fail")
+		}
+	})
+}
+
+func TestTestWithWriteFileString(t *testing.T) {
+	dir := t.TempDir()
+
+	t.Run("ok", func(in *testing.T) {
+		filename := path.Join(dir, "a-test-file")
+		test, sub := F(in).WithTestFatalF()
+		WithWriteFileString(test, filename, "this is a test")
+		if sub.Failed() {
+			in.Errorf("WithWriteFile() should not fail")
 		}
 	})
 }
