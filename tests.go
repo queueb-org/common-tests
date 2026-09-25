@@ -29,7 +29,7 @@ func PanicNotExpected(t testing.TB) func() {
 }
 
 // ErrorFormatFunc keeps [testing.T] error formatting functions signature.
-type ErrorFormatFunc = func(format string, args ...interface{})
+type ErrorFormatFunc = func(format string, args ...any)
 
 // F creates testing function helper.
 // Example:
@@ -58,7 +58,7 @@ type f struct {
 }
 
 // Fatalf represents [testing.TB.Fatalf] adapter applicable for internal testing.
-func (f *f) Fatalf(format string, args ...interface{}) {
+func (f *f) Fatalf(format string, args ...any) {
 	f.fatalf(format, args...)
 }
 

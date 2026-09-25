@@ -11,7 +11,7 @@ import (
 	"testing"
 )
 
-func FuncName(i interface{}) string {
+func FuncName(i any) string {
 	return runtime.FuncForPC(reflect.ValueOf(i).Pointer()).Name()
 }
 
@@ -84,11 +84,11 @@ func TestNewHTTPServer(t *testing.T) {
 
 func TestStackedRouter_ServeHTTP(t *testing.T) {
 	var responses []*Response
-	for i := 0; i < 10; i++ {
+	for i := range 10 {
 		responses = append(responses, NewResponseString(fmt.Sprintf("%d", i)))
 	}
 	router := NewStackedRouter(responses)
-	for i := 0; i < 10; i++ {
+	for range 10 {
 		recorder := httptest.NewRecorder()
 		router.ServeHTTP(recorder, nil)
 		if result := recorder.Result().StatusCode; result != http.StatusOK {
@@ -96,7 +96,7 @@ func TestStackedRouter_ServeHTTP(t *testing.T) {
 		}
 	}
 	// other requests should return 404 (NotFound response)
-	for i := 0; i < 10; i++ {
+	for range 10 {
 		recorder := httptest.NewRecorder()
 		router.ServeHTTP(recorder, nil)
 		if result := recorder.Result().StatusCode; result != http.StatusNotFound {
@@ -145,7 +145,7 @@ func TestRouter_ServeHTTP(t *testing.T) {
 	router := &Router{"/test": response}
 	request, _ := http.NewRequest(http.MethodGet, "/test", nil)
 
-	for i := 0; i < 10; i++ {
+	for i := range 10 {
 		recorder := httptest.NewRecorder()
 		router.ServeHTTP(recorder, request)
 		resp := recorder.Result()
